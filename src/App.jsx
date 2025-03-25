@@ -1,35 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import ProduceList from "./components/ProduceList";
+import Cart from "./components/Cart";
+import Total from "./components/Total";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const produceItems = [
+    { name: "Apples", price: 1.2 },
+    { name: "Bananas", price: 0.8 },
+    { name: "Carrots", price: 0.5 },
+    { name: "Tomatoes", price: 1.5 }
+  ];
+
+  const [cart, setCart] = useState({});
+
+  const handleAddToCart = (item) => {
+    setCart((prevCart) => {
+      const quantity = prevCart[item.name]?.quantity || 0;
+      return {
+        ...prevCart,
+        [item.name]: {
+          ...item,
+          quantity: quantity + 1
+        }
+      };
+    });
+  };
+
+  const handleRemoveFromCart = (item) => {
+    setCart((prevCart) => {
+      const quantity = prevCart[item.name]?.quantity || 0;
+
+      if (quantity <= 1) {
+        // Remove item completely
+        const { [item.name]: _, ...rest } = prevCart;
+        return rest;
+      }
+
+      return {
+        ...prevCart,
+        [item.name]: {
+          ...item,
+          quantity: quantity - 1
+        }
+      };
+    });
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <h1>Produce Market</h1>
+
+      <ProduceList
+        items={produceItems}
+        onAddToCart={handleAddToCart}
+      />
+
+      <Cart
+        cartItems={Object.values(cart)}
+        onRemoveFromCart={handleRemoveFromCart}
+      />
+
+      <Total cartItems={Object.values(cart)} />
+    </div>
+  );
 }
 
-export default App
+export default App;
